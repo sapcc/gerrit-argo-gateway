@@ -1,0 +1,21 @@
+[project]
+name = "gerrit-argo-gateway"
+version = "0.0.1"
+description = ""
+authors = [
+    {name = "Fabian Wiesel", email = "fabian.wiesel@sap.com"},
+]
+dependencies = [
+    "asyncssh>=2.14.1",
+    "httpx>=0.25.2",
+]
+requires-python = ">=3.12"
+readme = "README.md"
+license = {text = "Apache 2.0"}
+
+[project.scripts]
+gerrit-argo-gateway = "gerrit_argo_gateway:func"
+
+[tool.ruff]
+# Allow lines to be as long as 120.
+line-length = 120
