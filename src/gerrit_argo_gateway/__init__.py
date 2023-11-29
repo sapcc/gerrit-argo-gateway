@@ -14,7 +14,19 @@ LOG = logging.getLogger(__name__)
 
 
 class GerritGateway:
-    _RECHECK_RE = re.compile(r"\s+recheck\s*$", re.I + re.M)
+    # Regular expression for: "Support recheck to request re-running a test."
+    # We only allow blanks or optionally a `sap-openstack-ci` before the `recheck` keyword
+    # The text needs to either end after the `recheck` or at least have a whitespace
+    # to allow for comments by the person triggering the recheck
+    # Positive examples: (Ignoring the header "Patch Set \d:\n\n")
+    #   recheck
+    #   recheck - not sure why it failed
+    #   sap-openstack-ci recheck
+    # Negative examples:
+    #   someotherci recheck
+    #   rechecking
+    _RECHECK_RE = re.compile(r"^.*\n(:?\s*sap-openstack-ci\s+)?\s*recheck(:?[\s]|$)", re.I)
+    # Example: myuser@yourhost:1234
     _SSH_RE = re.compile(r"(?P<username>[^@]+)@(?P<host>[^:]+)(?::(?P<port>\d+))?")
 
     def __init__(self, subscriptions=None) -> None:
@@ -50,11 +62,10 @@ class GerritGateway:
 
     async def _comment_added(self, event):
         try:
-            comment = event["comment"].rstrip()
-            if not self._RECHECK_RE.search(comment):
-                LOG.debug(f"Rejecting comment to {event['changeKey']['id']} matching RE")
+            comment = event["comment"]
+            if not self._RECHECK_RE.match(comment):
+                LOG.debug(f"Rejecting comment to {event['changeKey']['id']} not matching RE")
                 return
-
             return await self._trigger_build(event)
         except KeyError:
             pass
