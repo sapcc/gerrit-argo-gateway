@@ -27,6 +27,10 @@ class GerritGateway:
             self._ssh = m.groupdict()
         else:
             raise RuntimeError("GERRIT_SERVER needs to be set to `user@host`")
+        if private := os.getenv("SSH_PRIVATE_KEY_PATH"):
+            self._client_keys = [asyncssh.read_private_key(private)]
+        else:
+            self._client_keys = None
 
     def stop(self):
         self._stop_loop = True
@@ -90,6 +94,7 @@ class GerritGateway:
             self._ssh["host"],
             port=int(self._ssh.get("port", 22)),
             username=self._ssh["username"],
+            client_keys=self._client_keys,
         ) as conn:
             self._connection = conn
             yield conn
