@@ -17,5 +17,12 @@ license = {text = "Apache 2.0"}
 gerrit-argo-gateway = "gerrit_argo_gateway:func"
 
 [tool.ruff]
-# Allow lines to be as long as 120.
+target-version = "py312"
 line-length = 120
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = ["ANN002", "ANN003", "ANN101", "ANN102", # Plain stupid busywork
+          "D203", "D212",       # Superseeded by other conflicting rules
+          "ISC001", "COM812",   # ruff fmt doesn't like them
+          ]

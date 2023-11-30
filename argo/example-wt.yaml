@@ -19,26 +19,3 @@ spec:
         command: [cowsay]
         args: ["{{inputs.parameters.type}} {{inputs.parameters.project}} {{inputs.parameters.changeId}}"]
   entrypoint: main
----
-apiVersion: argoproj.io/v1alpha1
-kind: WorkflowEventBinding
-metadata:
-  name: gerrit-event-consumer
-  namespace: argo
-spec:
-  event:
-    selector: discriminator == "gerrit" && payload.type != "" && payload.project != "" && payload.changeKey.id != ""
-  submit:
-    workflowTemplateRef:
-      name: gerrit-wf-example
-    arguments:
-      parameters:
-      - name: type
-        valueFrom:
-          event: payload.type
-      - name: project
-        valueFrom:
-          event: payload.project
-      - name: changeId
-        valueFrom:
-          event: payload.changeKey.id
