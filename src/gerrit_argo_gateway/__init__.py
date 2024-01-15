@@ -50,7 +50,15 @@ class GerritGateway:
         self._stop_loop = False
         self._process = None
         self._connection = None
-        self._url = f"https://{os.getenv('ARGO_SERVER')}/api/v1/events/{os.getenv('ARGO_NAMESPACE')}/gerrit"
+
+        argo_service = os.getenv("ARGO_SERVER_SERVICE_HOST")
+        argo_port = os.getenv("ARGO_SERVER_SERVICE_PORT")
+        if argo_service and argo_port:
+            argo_base = f"http://{argo_service}:{argo_port}"
+        else:
+            argo_base = f"https://{os.getenv('ARGO_SERVER')}"
+
+        self._url = f"{argo_base}/api/v1/events/{os.getenv('ARGO_NAMESPACE')}/gerrit"
 
         if m := self._SSH_RE.search(os.getenv("GERRIT_SERVER", "")):
             self._ssh = m.groupdict()
