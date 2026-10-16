@@ -1,4 +1,4 @@
-ARG PYVER=3.12
+ARG PYVER=3.15
 ARG REPO=python
 
 # build stage
